@@ -1,0 +1,38 @@
+version: '3'
+services:
+  productos:
+    build: ./api-productos
+    ports:
+      - "8000:8000"
+    networks:
+      - mi_red
+
+  pedidos:
+    build: ./api-pedidos
+    ports:
+      - "8001:8001"
+    networks:
+      - mi_red
+    depends_on:
+      - productos
+
+  usuarios:
+    build: ./api-usuarios
+    ports:
+      - "5000:5000"
+    networks:
+      - mi_red
+
+  orquestador:
+    build: ./api-orquestador
+    ports:
+      - "8080:8080"
+    networks:
+      - mi_red
+    depends_on:
+      - productos
+      - pedidos
+
+networks:
+  mi_red:
+    driver: bridge

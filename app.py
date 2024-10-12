@@ -41,7 +41,6 @@ def crear_pedido():
             print(f"Error al obtener el producto ID {producto_id}: {producto_response.text}")
             return jsonify({"error": f"Error al obtener el producto ID {producto_id}"}), 400
 
-        # Asumiendo que el inventario viene anidado en "producto" (como observaste en Postman)
         producto_data = producto_response.json().get('producto')
 
         # Verificación de inventario disponible
@@ -71,6 +70,10 @@ def crear_pedido():
 
         # Hacemos la solicitud al microservicio de productos para actualizar el inventario
         update_response = requests.post(f"{PRODUCTOS_URL}/{producto_id}/actualizar_inventario", json={"cantidad": cantidad})
+        
+        # Registro de respuesta para depuración
+        print(f"Respuesta de actualización: {update_response.status_code}, {update_response.text}")
+        
         if update_response.status_code != 200:
             print(f"Error al actualizar el inventario del producto ID {producto_id}: {update_response.text}")
             return jsonify({"error": f"Error al actualizar el inventario del producto ID {producto_id}"}), 500

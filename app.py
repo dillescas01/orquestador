@@ -42,9 +42,14 @@ def crear_pedido():
             return jsonify({"error": f"Error al obtener el producto ID {producto_id}"}), 400
 
         producto_data = producto_response.json()
-        if producto_data.get('inventario', 0) < cantidad:
+
+        # Verificar que producto_data sea un diccionario y contenga 'inventario'
+        if isinstance(producto_data, dict) and producto_data.get('inventario', 0) < cantidad:
             print(f"Inventario insuficiente para el producto ID {producto_id}")
             return jsonify({"error": f"Inventario insuficiente para el producto ID {producto_id}"}), 400
+        elif isinstance(producto_data, list):
+            print(f"Error: Se esperaba un objeto para el producto ID {producto_id}, pero se recibió una lista.")
+            return jsonify({"error": f"Estructura de datos inesperada para el producto ID {producto_id}"}), 400
 
     # Paso 2: Crear el pedido en el microservicio de pedidos
     pedido_data = {

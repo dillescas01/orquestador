@@ -11,13 +11,27 @@ PEDIDOS_URL = "http://pedidos:8001/pedidos"
 @app.route('/orquestador/pedido', methods=['POST'])
 def crear_pedido():
     data = request.json
+
+    # Validación de campos obligatorios
+    if not data:
+        print("Error: No se recibieron datos en la solicitud")
+        return jsonify({"error": "No se recibieron datos en la solicitud"}), 400
+    
     cliente = data.get('cliente')
     detalles = data.get('detalles')
 
+    if not cliente or not detalles:
+        print("Error: Faltan datos obligatorios ('cliente' y/o 'detalles')")
+        return jsonify({"error": "Faltan datos obligatorios ('cliente' y/o 'detalles')"}), 400
+
     # Paso 1: Verificar inventario en el microservicio de productos
     for detalle in detalles:
-        producto_id = detalle['producto_id']
-        cantidad = detalle['cantidad']
+        producto_id = detalle.get('producto_id')
+        cantidad = detalle.get('cantidad')
+
+        if producto_id is None or cantidad is None:
+            print("Error: Cada detalle debe incluir 'producto_id' y 'cantidad'")
+            return jsonify({"error": "Cada detalle debe incluir 'producto_id' y 'cantidad'"}), 400
 
         print(f"Verificando inventario para producto ID {producto_id} con cantidad {cantidad}")
 
@@ -28,7 +42,7 @@ def crear_pedido():
             return jsonify({"error": f"Error al obtener el producto ID {producto_id}"}), 400
 
         producto_data = producto_response.json()
-        if producto_data['inventario'] < cantidad:
+        if producto_data.get('inventario', 0) < cantidad:
             print(f"Inventario insuficiente para el producto ID {producto_id}")
             return jsonify({"error": f"Inventario insuficiente para el producto ID {producto_id}"}), 400
 
